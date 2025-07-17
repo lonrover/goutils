@@ -1,0 +1,17 @@
+app:
+  name: "MyApp"
+  env: "development"
+
+
+# 配置默认的最大连接数和空闲数
+mysql_config_global:
+  maxOpenConns: 20
+  maxIdleConns: 5
+
+
+# 日志的相关配置
+log:
+  path: "./"
+  level: "info"
+  max_size: 10 # MB
+  max_backups: 5
