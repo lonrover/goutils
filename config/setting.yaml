@@ -2,16 +2,22 @@ app:
   name: "MyApp"
   env: "development"
 
-
-# 配置默认的最大连接数和空闲数
-mysql_config_global:
-  maxOpenConns: 20
-  maxIdleConns: 5
-
-
 # 日志的相关配置
 log:
   path: "./"
   level: "info"
-  max_size: 10 # MB
+  max_size: 10
   max_backups: 5
+
+mysql_db_config:
+  username: "senselink"
+  password: "senselink_2018_local"
+  port:     "3306"
+  host:  "192.168.220.208"
+  database_name: "bi_slink_base"
+
+
+# 配置默认的最大连接数和空闲数
+db_config_global:
+  maxOpenConns: 20
+  maxIdleConns: 5
