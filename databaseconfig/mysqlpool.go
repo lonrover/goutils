@@ -5,18 +5,11 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/lonrover/goutils/config"
 )
 
 type MySQLDB struct {
 	db *sql.DB
-}
-
-type MysqlConfig struct {
-	Username string
-	Password string
-	Port     string
-	Address  string
-	Database string
 }
 
 /**
@@ -26,14 +19,14 @@ type MysqlConfig struct {
  * @param {int} maxIdleConns 【最大空闲的连接数】
  * @return {*}
  */
-func NewMySQLDB(config MysqlConfig, maxOpenConns, maxIdleConns int) (*MySQLDB, error) {
+func NewMySQLDB(config config.MysqlConfig, maxOpenConns, maxIdleConns int) (*MySQLDB, error) {
 	// 使用 mysql.Config 结构体构建 DSN，更安全且支持更多配置选项
 	cfg := mysql.Config{
 		User:                 config.Username,
 		Passwd:               config.Password,
 		Net:                  "tcp",
-		Addr:                 config.Address + ":" + config.Port,
-		DBName:               config.Database,
+		Addr:                 config.Host + ":" + config.Port,
+		DBName:               config.Database_name,
 		Timeout:              5 * time.Second, // 连接超时
 		ReadTimeout:          3 * time.Second, // 读取超时
 		WriteTimeout:         3 * time.Second, // 写入超时
