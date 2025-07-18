@@ -2,9 +2,10 @@ package logger
 
 import (
 	"fmt"
-	"goutils/common"
 	"os"
 	"runtime"
+
+	"github.com/lonrover/goutils/common"
 
 	"github.com/sirupsen/logrus"
 )

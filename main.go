@@ -1,7 +1,7 @@
 package main
 
 import (
-	"goutils/config"
+	"github.com/lonrover/goutils/config"
 )
 
 func main() {

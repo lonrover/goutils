@@ -1,9 +1,10 @@
 package config
 
 import (
-	"goutils/logger"
 	"os"
 	"time"
+
+	"github.com/lonrover/goutils/logger"
 
 	"gopkg.in/yaml.v3"
 )
