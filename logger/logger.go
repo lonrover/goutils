@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -28,29 +30,52 @@ func getCaller(skip int) (file string, line int) {
 }
 
 // 初始化日志器 (线程安全，仅执行一次)
-func Init(filePath, fileName string) {
-	// 初始化之前调用 InitDailyRotation 来进行日志备份和删除操作
-	// fileName = fileName + ".%Y%m%d.log"
-	InitDailyRotation(filePath, fileName)
+func Init(filePath, fileName string, enableConsole bool) {
 	once.Do(func() {
-		fullPath := filepath.Join(filePath, fileName)
-
-		// 确保目录存在
-		if err := common.CreateFileIfNotExists(fullPath); err != nil {
-			panic("无法创建日志文件: " + err.Error())
-		}
-
-		// 打开日志文件
-		file, err := os.OpenFile(fullPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		if err != nil {
-			panic("无法打开日志文件: " + err.Error())
-		}
-
-		// 创建并配置日志器
 		logger = logrus.New()
 		logger.SetLevel(logrus.InfoLevel)
-		logger.SetFormatter(&logrus.JSONFormatter{})
-		logger.SetOutput(file)
+		// logger.SetFormatter(&logrus.JSONFormatter{})
+		logger.SetFormatter(&logrus.TextFormatter{
+			ForceColors:   true, // 强制彩色输出
+			FullTimestamp: true, // 显示完整时间
+			DisableQuote:  true, // 不转义字符串
+			CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+				// 简化调用者信息显示
+				filename := filepath.Base(f.File)
+				return "", fmt.Sprintf("%s:%d", filename, f.Line)
+			},
+		})
+
+		// 创建多路输出
+		var writers []io.Writer
+
+		// 总是启用控制台输出
+		if enableConsole {
+			writers = append(writers, os.Stdout)
+		}
+
+		// 文件输出（可选）
+		if filePath != "" && fileName != "" {
+			InitDailyRotation(filePath, fileName)
+			fullPath := filepath.Join(filePath, fileName)
+
+			if err := common.CreateFileIfNotExists(fullPath); err != nil {
+				panic("无法创建日志文件: " + err.Error())
+			}
+
+			file, err := os.OpenFile(fullPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+			if err != nil {
+				panic("无法打开日志文件: " + err.Error())
+			}
+
+			writers = append(writers, file)
+		}
+
+		// 设置多路输出
+		if len(writers) > 0 {
+			multiWriter := io.MultiWriter(writers...)
+			logger.SetOutput(multiWriter)
+		}
 	})
 }
 
